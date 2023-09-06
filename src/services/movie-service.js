@@ -5,7 +5,7 @@
       method: 'GET',
       headers: {
         accept: 'application/json',
-        Authorization: null,
+        Authorization: `Bearer ${process.env.REACT_APP_MOVIE_KEY}`
       }
     }
 
