@@ -5,7 +5,7 @@
       method: 'GET',
       headers: {
         accept: 'application/json',
-        Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJmYzJkYWExNTU5ZTJhNDUzMjRmOWUxM2RkNGFkNGIwZCIsInN1YiI6IjY0Zjc3YTdiMmNkZTk4MDBhZDFjYzFjYSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.NUOLPt8dh97Wfh7pmBg96dJnjrAZYO9CwFIZl7eJL_8'
+        Authorization: null,
       }
     }
 
@@ -20,6 +20,10 @@
 
   getAllMovies() {
     return this.getResourse('https://api.themoviedb.org/3/search/movie?query=return&include_adult=false&language=en-US&page=1')
+  }
+
+  getGenres() {
+    return this.getResourse('https://api.themoviedb.org/3/genre/movie/list?language=en')
   }
 
 };
