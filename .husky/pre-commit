@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-lint-staged
+"/c/Users/Пользователь/OneDrive/Рабочий стол/react/movie/main_movie/node_modules/.bin/lint-staged"
