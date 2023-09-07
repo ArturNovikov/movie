@@ -1,0 +1,45 @@
+:where(.css-dev-only-do-not-override-nnuwmp).ant-card .ant-card-body {
+  padding: 0;
+  border-radius: 0;
+}
+
+.cardHeader {
+  font-family: Inter UI;
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: 0em;
+  text-align: left;
+  color: rgba(0, 0, 0, 1);
+
+  max-width: calc(100% - 50px);
+  white-space: normal;
+  overflow-wrap: break-word;
+
+  margin-top: 10px;
+  margin-bottom: 7px;
+}
+
+.tagsContainer {
+  margin-top: 0;
+  margin-bottom: 7px;
+}
+
+.cardTag {
+  font-family: Inter;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 15px;
+  letter-spacing: 0em;
+  text-align: left;
+  color: rgba(0, 0, 0, 0.65);
+  margin-top: 0;
+}
+
+.ratePosition {
+  position: absolute;
+  width: 239px;
+  height: 46px;
+  top: 231px;
+  left: 203px;
+  font-size: 16px;
+}

@@ -1,7 +1,12 @@
 .card-container {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin: 0 15%;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 36px;
+  margin: 0 15%;
 }
 
+.container {
+  position: relative;
+  display: flex;
+}

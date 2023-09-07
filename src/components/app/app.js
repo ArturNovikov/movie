@@ -1,9 +1,9 @@
 import React from 'react';
-import './app.css'
+import './app.css';
 
 import MovieBord from '../movie-bord';
 
-const App: React.FC = () => (
+const App = () => (
   <div className="App">
     <MovieBord />
   </div>
