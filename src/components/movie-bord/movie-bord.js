@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Col, Row } from 'antd';
+import { Col, Row, Pagination, Tabs, Input } from 'antd';
+import TabPane from 'antd/es/tabs/TabPane';
 
 import MovieItem from '../movie-item/';
 import movieService from '../../services';
@@ -12,6 +13,8 @@ export default class MovieBord extends Component {
     this.state = {
       movies: [],
       genres: [],
+      currentPage: 1,
+      itemsPerPage: 6,
     };
   }
 
@@ -43,24 +46,73 @@ export default class MovieBord extends Component {
     return genreIds.map((id) => genres.find((genre) => genre.id === id)?.name || '').filter((name) => name);
   }
 
+  handlePageChange = (page) => {
+    this.setState({
+      currentPage: page,
+    });
+  };
+
+  handleMovieSearch = (query) => {
+    console.log('handleMovieSearch called with query:', query);
+    movieService
+      .searchMovies(query)
+      .then((data) => {
+        this.setState({
+          movies: data.results,
+          currentPage: 1,
+        });
+      })
+      .catch((error) => console.error(error));
+  };
+
   render() {
-    const { movies, genres } = this.state;
+    const { movies, genres, currentPage, itemsPerPage } = this.state;
 
     if (!movies.length || !genres.length) {
       return <div>Loading...</div>;
     }
 
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentMovies = movies.slice(startIndex, endIndex);
     const sortedMovies = [...movies].sort((a, b) => b.vote_average - a.vote_average);
 
     return (
       <div className="card-container">
-        <Row gutter={[36, 36]} justify="center">
-          {sortedMovies.map((movie, index) => (
-            <Col key={index} span={12}>
-              <MovieItem movie={movie} genres={this.getGenreNames(movie.genre_ids)} />
-            </Col>
-          ))}
-        </Row>
+        <Tabs defaultActiveKey="1">
+          <TabPane tab="Search" key="1">
+            <Input.Search placeholder="Type to search..." onSearch={this.handleMovieSearch} />
+            <Row gutter={[36, 36]} justify="center">
+              {currentMovies.map((movie, index) => (
+                <Col key={index} span={12}>
+                  <MovieItem movie={movie} genres={this.getGenreNames(movie.genre_ids)} />
+                </Col>
+              ))}
+            </Row>
+            <Pagination
+              current={currentPage}
+              onChange={this.handlePageChange}
+              pageSize={itemsPerPage}
+              total={movies.length}
+            />
+          </TabPane>
+          <TabPane tab="Rated" key="2">
+            <Input.Search placeholder="Type to search..." onSearch={this.handleMovieSearch} />
+            <Row gutter={[36, 36]} justify="center">
+              {sortedMovies.map((movie, index) => (
+                <Col key={index} span={12}>
+                  <MovieItem movie={movie} genres={this.getGenreNames(movie.genre_ids)} />
+                </Col>
+              ))}
+            </Row>
+            <Pagination
+              current={currentPage}
+              onChange={this.handlePageChange}
+              pageSize={itemsPerPage}
+              total={movies.length}
+            />
+          </TabPane>
+        </Tabs>
       </div>
     );
   }

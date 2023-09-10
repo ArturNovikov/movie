@@ -26,6 +26,14 @@ class MovieService {
   getGenres() {
     return this.getResourse('https://api.themoviedb.org/3/genre/movie/list?language=en');
   }
+
+  searchMovies(query) {
+    return this.getResourse(
+      `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(
+        query
+      )}&include_adult=false&language=en-US&page=1`
+    );
+  }
 }
 
 export default new MovieService();

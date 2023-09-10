@@ -10,3 +10,8 @@
   position: relative;
   display: flex;
 }
+
+:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs > .ant-tabs-nav .ant-tabs-nav-wrap,
+:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs > div > .ant-tabs-nav .ant-tabs-nav-wrap {
+  justify-content: space-evenly;
+}
