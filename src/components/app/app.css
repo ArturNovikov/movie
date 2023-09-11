@@ -1,0 +1,18 @@
+.App {
+  width: 1010px;
+  margin: 0 auto;
+  background-color: white;
+}
+
+body {
+  background-color: rgba(247, 247, 247, 1);
+}
+
+@media (max-width: 420px) {
+  body {
+    max-width: 420px;
+  }
+  .App {
+    max-width: 420px;
+  }
+}

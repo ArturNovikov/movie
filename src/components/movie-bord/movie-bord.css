@@ -1,17 +1,152 @@
 .card-container {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 36px;
-  margin: 0 15%;
+  max-width: 1010px;
 }
 
 .container {
   position: relative;
   display: flex;
+  width: 451px;
+  height: 279px;
 }
 
 :where(.css-dev-only-do-not-override-nnuwmp).ant-tabs > .ant-tabs-nav .ant-tabs-nav-wrap,
 :where(.css-dev-only-do-not-override-nnuwmp).ant-tabs > div > .ant-tabs-nav .ant-tabs-nav-wrap {
   justify-content: space-evenly;
+}
+
+:where(.css-dev-only-do-not-override-nnuwmp).ant-input-search > .ant-input-group > .ant-input-group-addon:last-child {
+  display: none;
+}
+
+.ant-input-search .ant-input {
+  border-top-right-radius: 3px !important;
+  border-bottom-right-radius: 3px !important;
+}
+
+:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs-top > .ant-tabs-nav::before,
+:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs-bottom > .ant-tabs-nav::before,
+:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs-top > div > .ant-tabs-nav::before,
+:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs-bottom > div > .ant-tabs-nav::before {
+  border-bottom: none;
+  position: relative;
+  font-family: Inter UI;
+  font-size: 14px;
+  line-height: 22px;
+  letter-spacing: 0px;
+  text-align: center;
+}
+
+:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs-top > .ant-tabs-nav::before,
+:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs-bottom > .ant-tabs-nav::before,
+:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs-top > div > .ant-tabs-nav::before,
+:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs-bottom > div > .ant-tabs-nav::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 13%;
+  transform: translateX(-50%);
+  border-bottom: 1px solid rgba(217, 217, 217, 1);
+  margin-left: 1px;
+}
+
+:where(.css-dev-only-do-not-override-nnuwmp).ant-input {
+  border-radius: 3px;
+  margin-left: 36px;
+  max-width: 938px;
+}
+
+:where(.css-dev-only-do-not-override-nnuwmp).ant-card-bordered {
+  border: none;
+}
+
+.movieItemContainer {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 1010px;
+  margin-left: 36px;
+  gap: 36px;
+}
+
+.Pagination {
+  width: fit-content;
+  margin: 36px auto 0;
+}
+
+.ant-tabs-ink-bar-animated {
+  width: 55% !important;
+  margin-left: -10px;
+}
+
+:where(.css-dev-only-do-not-override-nnuwmp).ant-pagination .ant-pagination-item-active a {
+  background-color: #1890ff;
+}
+
+:where(.css-dev-only-do-not-override-nnuwmp).ant-pagination .ant-pagination-item-active a {
+  color: white;
+}
+
+.movieItemContainerChild {
+  box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.15);
+}
+
+.InputSearch {
+  margin-bottom: 34px;
+}
+
+@media (max-width: 420px) {
+  .card-container {
+    max-width: 420px;
+  }
+
+  .container {
+    position: relative;
+    display: flex;
+    max-width: 388px;
+    height: 245px;
+  }
+
+  .movieItemContainer {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    max-width: 420px;
+    margin-left: 16px;
+    gap: 20px;
+  }
+
+  .movieItemContainerChild,
+  :where(.css-dev-only-do-not-override-nnuwmp).ant-card-bordered,
+  :where(.css-dev-only-do-not-override-nnuwmp).ant-card .ant-card-body {
+    max-width: 388px;
+    height: 245px;
+  }
+
+  .InputSearch {
+    margin-bottom: 10px;
+  }
+
+  :where(.css-dev-only-do-not-override-nnuwmp).ant-input {
+    border-radius: 2px;
+    margin-left: 16px;
+    margin-right: 16px;
+    max-width: 388px;
+  }
+
+  .cardHeader {
+    max-width: calc(100% - 15px);
+    margin-top: 0;
+  }
+
+  .container img {
+    width: 60px !important;
+    height: 91px !important;
+    margin-left: 10px;
+    padding-top: 6px;
+  }
+
+  .cardDescription {
+    position: absolute;
+    left: 10px;
+  }
 }

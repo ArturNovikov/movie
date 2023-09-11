@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { Col, Row, Pagination, Tabs, Input } from 'antd';
-import TabPane from 'antd/es/tabs/TabPane';
+import { Pagination, Tabs, Input } from 'antd';
 
 import MovieItem from '../movie-item/';
 import movieService from '../../services';
@@ -13,7 +12,8 @@ export default class MovieBord extends Component {
     this.state = {
       movies: [],
       genres: [],
-      currentPage: 1,
+      searchCurrentPage: 1,
+      ratedCurrentPage: 1,
       itemsPerPage: 6,
     };
   }
@@ -25,7 +25,6 @@ export default class MovieBord extends Component {
         this.setState({
           movies: data.results,
         });
-        console.log(data.results);
       })
       .catch((error) => console.error(error));
 
@@ -35,7 +34,6 @@ export default class MovieBord extends Component {
         this.setState({
           genres: data.genres,
         });
-        console.log(data.genres);
       })
       .catch((error) => console.log(error));
   }
@@ -46,14 +44,19 @@ export default class MovieBord extends Component {
     return genreIds.map((id) => genres.find((genre) => genre.id === id)?.name || '').filter((name) => name);
   }
 
-  handlePageChange = (page) => {
-    this.setState({
-      currentPage: page,
-    });
+  handlePageChange = (type, page) => {
+    if (type === 'search') {
+      this.setState({
+        searchCurrentPage: page,
+      });
+    } else if (type === 'rated') {
+      this.setState({
+        ratedCurrentPage: page,
+      });
+    }
   };
 
   handleMovieSearch = (query) => {
-    console.log('handleMovieSearch called with query:', query);
     movieService
       .searchMovies(query)
       .then((data) => {
@@ -65,54 +68,85 @@ export default class MovieBord extends Component {
       .catch((error) => console.error(error));
   };
 
+  getCurrentMovies = (currentPage, moviesList) => {
+    const startIndex = (currentPage - 1) * this.state.itemsPerPage;
+    const endIndex = startIndex + this.state.itemsPerPage;
+    return moviesList.slice(startIndex, endIndex);
+  };
+
   render() {
-    const { movies, genres, currentPage, itemsPerPage } = this.state;
+    const { movies, genres, itemsPerPage } = this.state;
 
     if (!movies.length || !genres.length) {
       return <div>Loading...</div>;
     }
 
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const currentMovies = movies.slice(startIndex, endIndex);
     const sortedMovies = [...movies].sort((a, b) => b.vote_average - a.vote_average);
+
+    const currentSearchMovies = this.getCurrentMovies(this.state.searchCurrentPage, movies);
+    const currentRatedMovies = this.getCurrentMovies(this.state.ratedCurrentPage, sortedMovies);
+
+    const items = [
+      {
+        key: '1',
+        label: 'Search',
+        content: (
+          <>
+            <Input.Search placeholder="Type to search..." className="InputSearch" onSearch={this.handleMovieSearch} />
+            <div className="movieItemContainer">
+              {currentSearchMovies.map((movie, index) => (
+                <div key={index} className="movieItemContainerChild">
+                  <MovieItem movie={movie} genres={this.getGenreNames(movie.genre_ids)} />
+                </div>
+              ))}
+            </div>
+            <Pagination
+              className="Pagination"
+              current={this.state.searchCurrentPage}
+              onChange={(page) => this.handlePageChange('search', page)}
+              pageSize={itemsPerPage}
+              total={movies.length}
+            />
+          </>
+        ),
+      },
+
+      {
+        key: '2',
+        label: 'Rated',
+        content: (
+          <>
+            <Input.Search placeholder="Type to search..." className="InputSearch" onSearch={this.handleMovieSearch} />
+            <div className="movieItemContainer">
+              {currentRatedMovies.map((movie, index) => (
+                <div key={index} className="movieItemContainerChild">
+                  <MovieItem movie={movie} genres={this.getGenreNames(movie.genre_ids)} />
+                </div>
+              ))}
+            </div>
+            <Pagination
+              className="Pagination"
+              current={this.state.ratedCurrentPage}
+              onChange={(page) => this.handlePageChange('rated', page)}
+              pageSize={itemsPerPage}
+              total={movies.length}
+            />
+          </>
+        ),
+      },
+    ];
 
     return (
       <div className="card-container">
-        <Tabs defaultActiveKey="1">
-          <TabPane tab="Search" key="1">
-            <Input.Search placeholder="Type to search..." onSearch={this.handleMovieSearch} />
-            <Row gutter={[36, 36]} justify="center">
-              {currentMovies.map((movie, index) => (
-                <Col key={index} span={12}>
-                  <MovieItem movie={movie} genres={this.getGenreNames(movie.genre_ids)} />
-                </Col>
-              ))}
-            </Row>
-            <Pagination
-              current={currentPage}
-              onChange={this.handlePageChange}
-              pageSize={itemsPerPage}
-              total={movies.length}
-            />
-          </TabPane>
-          <TabPane tab="Rated" key="2">
-            <Input.Search placeholder="Type to search..." onSearch={this.handleMovieSearch} />
-            <Row gutter={[36, 36]} justify="center">
-              {sortedMovies.map((movie, index) => (
-                <Col key={index} span={12}>
-                  <MovieItem movie={movie} genres={this.getGenreNames(movie.genre_ids)} />
-                </Col>
-              ))}
-            </Row>
-            <Pagination
-              current={currentPage}
-              onChange={this.handlePageChange}
-              pageSize={itemsPerPage}
-              total={movies.length}
-            />
-          </TabPane>
-        </Tabs>
+        <Tabs
+          defaultActiveKey="1"
+          centered
+          items={items.map((item) => ({
+            key: item.key,
+            label: item.label,
+            children: item.content,
+          }))}
+        />
       </div>
     );
   }
