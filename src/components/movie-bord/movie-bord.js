@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Pagination, Tabs, Input } from 'antd';
+import { Pagination, Tabs, Input, Spin, Alert } from 'antd';
 
 import MovieItem from '../movie-item/';
 import movieService from '../../services';
@@ -15,27 +15,41 @@ export default class MovieBord extends Component {
       searchCurrentPage: 1,
       ratedCurrentPage: 1,
       itemsPerPage: 6,
+      loading: true,
+      initialized: false,
+      error: null,
     };
   }
 
   componentDidMount() {
-    movieService
+    const moviesPromise = movieService
       .getAllMovies()
       .then((data) => {
         this.setState({
           movies: data.results,
+          loading: false,
         });
       })
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        console.error(error);
+        this.setState({ error: 'Ошибка при загрузке фильмов.' });
+      });
 
-    movieService
+    const genresPromise = movieService
       .getGenres()
       .then((data) => {
         this.setState({
           genres: data.genres,
+          loading: false,
         });
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        console.error(error);
+        this.setState({ error: 'Ошибка загрузки жанров.' });
+      });
+    Promise.all([moviesPromise, genresPromise]).finally(() => {
+      this.setState({ initialized: true, loading: false });
+    });
   }
 
   getGenreNames(genreIds) {
@@ -57,15 +71,31 @@ export default class MovieBord extends Component {
   };
 
   handleMovieSearch = (query) => {
+    this.setState({ loading: true });
     movieService
       .searchMovies(query)
       .then((data) => {
-        this.setState({
-          movies: data.results,
-          currentPage: 1,
-        });
+        if (data.results && data.results.length > 0) {
+          this.setState({
+            movies: data.results,
+            currentPage: 1,
+            loading: false,
+          });
+        } else {
+          this.setState({
+            movies: [],
+            error: 'По вашему запросу ничего не найдено.',
+            loading: false,
+          });
+        }
       })
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        console.error(error);
+        this.setState({
+          error: 'При поиске фильмов произошла ошибка.',
+          loading: false,
+        });
+      });
   };
 
   getCurrentMovies = (currentPage, moviesList) => {
@@ -75,10 +105,18 @@ export default class MovieBord extends Component {
   };
 
   render() {
-    const { movies, genres, itemsPerPage } = this.state;
+    const { movies, genres, itemsPerPage, loading, error } = this.state;
 
-    if (!movies.length || !genres.length) {
-      return <div>Loading...</div>;
+    if (this.state.error || error) {
+      return <Alert message="Ошибка" description={this.state.error} type="error" showIcon />;
+    }
+
+    if (!movies.length || !genres.length || loading) {
+      return (
+        <div className="example">
+          <Spin />
+        </div>
+      );
     }
 
     const sortedMovies = [...movies].sort((a, b) => b.vote_average - a.vote_average);
