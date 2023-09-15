@@ -18,6 +18,7 @@ export default class MovieBord extends Component {
       loading: true,
       initialized: false,
       error: null,
+      currentQuery: '',
     };
   }
 
@@ -59,15 +60,28 @@ export default class MovieBord extends Component {
   }
 
   handlePageChange = (type, page) => {
-    if (type === 'search') {
-      this.setState({
-        searchCurrentPage: page,
+    this.setState({ loading: true });
+
+    const fetchMovies =
+      type === 'search' ? movieService.getAllMovies(page) : movieService.searchMovies(this.state.currentQuery, page);
+
+    fetchMovies
+      .then((data) => {
+        this.setState({
+          movies: data.results,
+          loading: false,
+          [`${type}CurrentPage`]: page,
+        });
+      })
+
+      .catch((error) => {
+        console.log(error);
+
+        this.setState({
+          error: 'Error of loading movies for current Page.',
+          loading: false,
+        });
       });
-    } else if (type === 'rated') {
-      this.setState({
-        ratedCurrentPage: page,
-      });
-    }
   };
 
   handleMovieSearch = (query) => {
@@ -80,6 +94,7 @@ export default class MovieBord extends Component {
             movies: data.results,
             currentPage: 1,
             loading: false,
+            currentQuery: query,
           });
         } else {
           this.setState({

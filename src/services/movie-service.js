@@ -17,9 +17,9 @@ class MovieService {
     return await res.json();
   }
 
-  getAllMovies() {
+  getAllMovies(page = 1) {
     return this.getResourse(
-      'https://api.themoviedb.org/3/search/movie?query=return&include_adult=false&language=en-US&page=1'
+      `https://api.themoviedb.org/3/search/movie?query=return&include_adult=false&language=en-US&page=${page}`
     );
   }
 
@@ -27,11 +27,11 @@ class MovieService {
     return this.getResourse('https://api.themoviedb.org/3/genre/movie/list?language=en');
   }
 
-  searchMovies(query) {
+  searchMovies(query, page = 1) {
     return this.getResourse(
       `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(
         query
-      )}&include_adult=false&language=en-US&page=1`
+      )}&include_adult=false&language=en-US&page=${page}`
     );
   }
 }
