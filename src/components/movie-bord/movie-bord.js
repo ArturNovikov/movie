@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Pagination, Tabs, Input, Spin, Alert } from 'antd';
+import debounce from 'lodash/debounce';
 
 import MovieItem from '../movie-item/';
 import movieService from '../../services';
@@ -20,6 +21,8 @@ export default class MovieBord extends Component {
       error: null,
       currentQuery: '',
     };
+
+    this.debouncedSearch = debounce(this.handleMovieSearch, 500);
   }
 
   componentDidMount() {
@@ -59,6 +62,12 @@ export default class MovieBord extends Component {
     return genreIds.map((id) => genres.find((genre) => genre.id === id)?.name || '').filter((name) => name);
   }
 
+  getCurrentMovies = (currentPage, moviesList) => {
+    const startIndex = (currentPage - 1) * this.state.itemsPerPage;
+    const endIndex = startIndex + this.state.itemsPerPage;
+    return moviesList.slice(startIndex, endIndex);
+  };
+
   handlePageChange = (type, page) => {
     this.setState({ loading: true });
 
@@ -94,7 +103,6 @@ export default class MovieBord extends Component {
             movies: data.results,
             currentPage: 1,
             loading: false,
-            currentQuery: query,
           });
         } else {
           this.setState({
@@ -113,29 +121,14 @@ export default class MovieBord extends Component {
       });
   };
 
-  getCurrentMovies = (currentPage, moviesList) => {
-    const startIndex = (currentPage - 1) * this.state.itemsPerPage;
-    const endIndex = startIndex + this.state.itemsPerPage;
-    return moviesList.slice(startIndex, endIndex);
-  };
-
   render() {
-    const { movies, genres, itemsPerPage, loading, error } = this.state;
+    const { movies, itemsPerPage, loading, error } = this.state;
 
     if (this.state.error || error) {
       return <Alert message="Ошибка" description={this.state.error} type="error" showIcon />;
     }
 
-    if (!movies.length || !genres.length || loading) {
-      return (
-        <div className="example">
-          <Spin />
-        </div>
-      );
-    }
-
     const sortedMovies = [...movies].sort((a, b) => b.vote_average - a.vote_average);
-
     const currentSearchMovies = this.getCurrentMovies(this.state.searchCurrentPage, movies);
     const currentRatedMovies = this.getCurrentMovies(this.state.ratedCurrentPage, sortedMovies);
 
@@ -145,7 +138,11 @@ export default class MovieBord extends Component {
         label: 'Search',
         content: (
           <>
-            <Input.Search placeholder="Type to search..." className="InputSearch" onSearch={this.handleMovieSearch} />
+            <Input.Search
+              placeholder="Type to search..."
+              className="InputSearch"
+              onChange={(e) => this.debouncedSearch(e.target.value)}
+            />
             <div className="movieItemContainer">
               {currentSearchMovies.map((movie, index) => (
                 <div key={index} className="movieItemContainerChild">
@@ -169,7 +166,11 @@ export default class MovieBord extends Component {
         label: 'Rated',
         content: (
           <>
-            <Input.Search placeholder="Type to search..." className="InputSearch" onSearch={this.handleMovieSearch} />
+            <Input.Search
+              placeholder="Type to search..."
+              className="InputSearch"
+              onChange={(e) => this.debouncedSearch(e.target.value)}
+            />
             <div className="movieItemContainer">
               {currentRatedMovies.map((movie, index) => (
                 <div key={index} className="movieItemContainerChild">
@@ -189,18 +190,22 @@ export default class MovieBord extends Component {
       },
     ];
 
-    return (
-      <div className="card-container">
-        <Tabs
-          defaultActiveKey="1"
-          centered
-          items={items.map((item) => ({
-            key: item.key,
-            label: item.label,
-            children: item.content,
-          }))}
-        />
+    const movieContent = loading ? (
+      <div className="example">
+        <Spin />
       </div>
+    ) : (
+      <Tabs
+        defaultActiveKey="1"
+        centered
+        items={items.map((item) => ({
+          key: item.key,
+          label: item.label,
+          children: item.content,
+        }))}
+      />
     );
+
+    return <div className="card-container">{movieContent}</div>;
   }
 }

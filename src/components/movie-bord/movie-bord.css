@@ -9,12 +9,12 @@
   height: 279px;
 }
 
-:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs > .ant-tabs-nav .ant-tabs-nav-wrap,
-:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs > div > .ant-tabs-nav .ant-tabs-nav-wrap {
+:where(.css-dev-only-do-not-override-i0102m).ant-tabs > .ant-tabs-nav .ant-tabs-nav-wrap,
+:where(.css-dev-only-do-not-override-i0102m).ant-tabs > div > .ant-tabs-nav .ant-tabs-nav-wrap {
   justify-content: space-evenly;
 }
 
-:where(.css-dev-only-do-not-override-nnuwmp).ant-input-search > .ant-input-group > .ant-input-group-addon:last-child {
+:where(.css-dev-only-do-not-override-i0102m).ant-input-search > .ant-input-group > .ant-input-group-addon:last-child {
   display: none;
 }
 
@@ -23,10 +23,10 @@
   border-bottom-right-radius: 3px !important;
 }
 
-:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs-top > .ant-tabs-nav::before,
-:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs-bottom > .ant-tabs-nav::before,
-:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs-top > div > .ant-tabs-nav::before,
-:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs-bottom > div > .ant-tabs-nav::before {
+:where(.css-dev-only-do-not-override-i0102m).ant-tabs-top > .ant-tabs-nav::before,
+:where(.css-dev-only-do-not-override-i0102m).ant-tabs-bottom > .ant-tabs-nav::before,
+:where(.css-dev-only-do-not-override-i0102m).ant-tabs-top > div > .ant-tabs-nav::before,
+:where(.css-dev-only-do-not-override-i0102m).ant-tabs-bottom > div > .ant-tabs-nav::before {
   border-bottom: none;
   position: relative;
   font-family: Inter UI;
@@ -36,10 +36,10 @@
   text-align: center;
 }
 
-:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs-top > .ant-tabs-nav::before,
-:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs-bottom > .ant-tabs-nav::before,
-:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs-top > div > .ant-tabs-nav::before,
-:where(.css-dev-only-do-not-override-nnuwmp).ant-tabs-bottom > div > .ant-tabs-nav::after {
+:where(.css-dev-only-do-not-override-i0102m).ant-tabs-top > .ant-tabs-nav::before,
+:where(.css-dev-only-do-not-override-i0102m).ant-tabs-bottom > .ant-tabs-nav::before,
+:where(.css-dev-only-do-not-override-i0102m).ant-tabs-top > div > .ant-tabs-nav::before,
+:where(.css-dev-only-do-not-override-i0102m).ant-tabs-bottom > div > .ant-tabs-nav::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -50,13 +50,13 @@
   margin-left: 1px;
 }
 
-:where(.css-dev-only-do-not-override-nnuwmp).ant-input {
+:where(.css-dev-only-do-not-override-i0102m).ant-input {
   border-radius: 3px;
   margin-left: 36px;
   max-width: 938px;
 }
 
-:where(.css-dev-only-do-not-override-nnuwmp).ant-card-bordered {
+:where(.css-dev-only-do-not-override-i0102m).ant-card-bordered {
   border: none;
 }
 
@@ -78,11 +78,11 @@
   margin-left: -10px;
 }
 
-:where(.css-dev-only-do-not-override-nnuwmp).ant-pagination .ant-pagination-item-active a {
+:where(.css-dev-only-do-not-override-i0102m).ant-pagination .ant-pagination-item-active a {
   background-color: #1890ff;
 }
 
-:where(.css-dev-only-do-not-override-nnuwmp).ant-pagination .ant-pagination-item-active a {
+:where(.css-dev-only-do-not-override-i0102m).ant-pagination .ant-pagination-item-active a {
   color: white;
 }
 
@@ -125,8 +125,8 @@
   }
 
   .movieItemContainerChild,
-  :where(.css-dev-only-do-not-override-nnuwmp).ant-card-bordered,
-  :where(.css-dev-only-do-not-override-nnuwmp).ant-card .ant-card-body {
+  :where(.css-dev-only-do-not-override-i0102m).ant-card-bordered,
+  :where(.css-dev-only-do-not-override-i0102m).ant-card .ant-card-body {
     max-width: 388px;
     height: 245px;
   }
@@ -135,7 +135,7 @@
     margin-bottom: 10px;
   }
 
-  :where(.css-dev-only-do-not-override-nnuwmp).ant-input {
+  :where(.css-dev-only-do-not-override-i0102m).ant-input { 
     border-radius: 2px;
     margin-left: 16px;
     margin-right: 16px;

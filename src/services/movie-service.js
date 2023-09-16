@@ -19,7 +19,7 @@ class MovieService {
 
   getAllMovies(page = 1) {
     return this.getResourse(
-      `https://api.themoviedb.org/3/search/movie?query=return&include_adult=false&language=en-US&page=${page}`
+      `https://api.themoviedb.org/3/search/movie?query=lord&include_adult=false&language=en-US&page=${page}`
     );
   }
 
