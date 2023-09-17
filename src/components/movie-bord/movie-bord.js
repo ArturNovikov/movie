@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Pagination, Tabs, Input, Spin, Alert } from 'antd';
 import debounce from 'lodash/debounce';
 
+import RatingContext from '../rating-context/RatingContext';
 import MovieItem from '../movie-item/';
 import movieService from '../../services';
 
@@ -20,6 +21,7 @@ export default class MovieBord extends Component {
       initialized: false,
       error: null,
       currentQuery: '',
+      ratedMovies: [],
     };
 
     this.debouncedSearch = debounce(this.handleMovieSearch, 500);
@@ -66,6 +68,15 @@ export default class MovieBord extends Component {
     const startIndex = (currentPage - 1) * this.state.itemsPerPage;
     const endIndex = startIndex + this.state.itemsPerPage;
     return moviesList.slice(startIndex, endIndex);
+  };
+
+  handleRatingUpdate = () => {
+    if (!this.state.movies || !this.context.ratings) return;
+
+    const ratedMovies = this.state.movies.filter((movie) => this.context.ratings[movie.id]);
+    if (ratedMovies.length !== this.state.ratedMovies.length) {
+      this.setState({ ratedMovies });
+    }
   };
 
   handlePageChange = (type, page) => {
@@ -123,12 +134,12 @@ export default class MovieBord extends Component {
 
   render() {
     const { movies, itemsPerPage, loading, error } = this.state;
-
     if (this.state.error || error) {
       return <Alert message="Ошибка" description={this.state.error} type="error" showIcon />;
     }
+    const ratedMovies = this.state.movies.filter((movie) => this.context.ratings[movie.id]);
 
-    const sortedMovies = [...movies].sort((a, b) => b.vote_average - a.vote_average);
+    const sortedMovies = [...ratedMovies].sort((a, b) => b.vote_average - a.vote_average);
     const currentSearchMovies = this.getCurrentMovies(this.state.searchCurrentPage, movies);
     const currentRatedMovies = this.getCurrentMovies(this.state.ratedCurrentPage, sortedMovies);
 
@@ -146,7 +157,11 @@ export default class MovieBord extends Component {
             <div className="movieItemContainer">
               {currentSearchMovies.map((movie, index) => (
                 <div key={index} className="movieItemContainerChild">
-                  <MovieItem movie={movie} genres={this.getGenreNames(movie.genre_ids)} />
+                  <MovieItem
+                    movie={movie}
+                    genres={this.getGenreNames(movie.genre_ids)}
+                    onRatingUpdate={this.handleRatingUpdate}
+                  />
                 </div>
               ))}
             </div>
@@ -166,15 +181,14 @@ export default class MovieBord extends Component {
         label: 'Rated',
         content: (
           <>
-            <Input.Search
-              placeholder="Type to search..."
-              className="InputSearch"
-              onChange={(e) => this.debouncedSearch(e.target.value)}
-            />
             <div className="movieItemContainer">
               {currentRatedMovies.map((movie, index) => (
                 <div key={index} className="movieItemContainerChild">
-                  <MovieItem movie={movie} genres={this.getGenreNames(movie.genre_ids)} />
+                  <MovieItem
+                    movie={movie}
+                    genres={this.getGenreNames(movie.genre_ids)}
+                    onRatingUpdate={this.handleRatingUpdate}
+                  />
                 </div>
               ))}
             </div>
@@ -209,3 +223,4 @@ export default class MovieBord extends Component {
     return <div className="card-container">{movieContent}</div>;
   }
 }
+MovieBord.contextType = RatingContext;
