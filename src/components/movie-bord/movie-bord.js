@@ -2,18 +2,18 @@ import React, { Component } from 'react';
 import { Pagination, Tabs, Input, Spin, Alert } from 'antd';
 import debounce from 'lodash/debounce';
 
-import RatingContext from '../rating-context/RatingContext';
+import ContextAll from '../contexts/contextAll';
 import MovieItem from '../movie-item/';
-import movieService from '../../services';
+import MovieService from '../../services';
 
 import './movie-bord.css';
 
 export default class MovieBord extends Component {
+  static contextType = ContextAll;
   constructor(props) {
     super(props);
     this.state = {
       movies: [],
-      genres: [],
       searchCurrentPage: 1,
       ratedCurrentPage: 1,
       itemsPerPage: 6,
@@ -28,38 +28,43 @@ export default class MovieBord extends Component {
   }
 
   componentDidMount() {
-    const moviesPromise = movieService
-      .getAllMovies()
-      .then((data) => {
-        this.setState({
-          movies: data.results,
-          loading: false,
-        });
-      })
-      .catch((error) => {
-        console.error(error);
-        this.setState({ error: 'Ошибка при загрузке фильмов.' });
-      });
+    const { guestSessionId } = this.context;
+    const moviesPromise = MovieService.getAllMovies();
+    const genresPromise = MovieService.getGenres();
+    const ratedMoviesPromise = guestSessionId
+      ? MovieService.getRatedMovies(guestSessionId)
+      : Promise.resolve({ results: [] });
 
-    const genresPromise = movieService
-      .getGenres()
-      .then((data) => {
+    Promise.all([moviesPromise, genresPromise, ratedMoviesPromise])
+      .then(([moviesData, genresData, ratedMoviesData]) => {
         this.setState({
-          genres: data.genres,
+          movies: moviesData.results,
+          genres: genresData.genres,
+          ratedMovies: ratedMoviesData.results,
           loading: false,
         });
       })
       .catch((error) => {
         console.error(error);
-        this.setState({ error: 'Ошибка загрузки жанров.' });
+        this.setState({ error: 'On loading Error.' });
+      })
+      .finally(() => {
+        this.setState({ initialized: true, loading: false });
       });
-    Promise.all([moviesPromise, genresPromise]).finally(() => {
-      this.setState({ initialized: true, loading: false });
-    });
   }
 
+  getRatedMovies = (guestSessionId) => {
+    MovieService.getRatedMovies(guestSessionId)
+      .then((data) => {
+        this.setState({ ratedMovies: data.results });
+      })
+      .catch((err) => {
+        console.error('Error fetching rated movies:', err);
+      });
+  };
+
   getGenreNames(genreIds) {
-    const { genres } = this.state;
+    const genres = this.context.genres;
     if (!genreIds || !genres) return [];
     return genreIds.map((id) => genres.find((genre) => genre.id === id)?.name || '').filter((name) => name);
   }
@@ -74,16 +79,19 @@ export default class MovieBord extends Component {
     if (!this.state.movies || !this.context.ratings) return;
 
     const ratedMovies = this.state.movies.filter((movie) => this.context.ratings[movie.id]);
-    if (ratedMovies.length !== this.state.ratedMovies.length) {
-      this.setState({ ratedMovies });
-    }
+    this.setState({ ratedMovies });
+  };
+
+  updateRatedMovies = () => {
+    const { guestSessionId } = this.context;
+    this.getRatedMovies(guestSessionId);
   };
 
   handlePageChange = (type, page) => {
     this.setState({ loading: true });
 
     const fetchMovies =
-      type === 'search' ? movieService.getAllMovies(page) : movieService.searchMovies(this.state.currentQuery, page);
+      type === 'search' ? MovieService.getAllMovies(page) : MovieService.searchMovies(this.state.currentQuery, page);
 
     fetchMovies
       .then((data) => {
@@ -106,8 +114,7 @@ export default class MovieBord extends Component {
 
   handleMovieSearch = (query) => {
     this.setState({ loading: true });
-    movieService
-      .searchMovies(query)
+    MovieService.searchMovies(query)
       .then((data) => {
         if (data.results && data.results.length > 0) {
           this.setState({
@@ -137,9 +144,8 @@ export default class MovieBord extends Component {
     if (this.state.error || error) {
       return <Alert message="Ошибка" description={this.state.error} type="error" showIcon />;
     }
-    const ratedMovies = this.state.movies.filter((movie) => this.context.ratings[movie.id]);
 
-    const sortedMovies = [...ratedMovies].sort((a, b) => b.vote_average - a.vote_average);
+    const sortedMovies = [...this.state.ratedMovies].sort((a, b) => b.vote_average - a.vote_average);
     const currentSearchMovies = this.getCurrentMovies(this.state.searchCurrentPage, movies);
     const currentRatedMovies = this.getCurrentMovies(this.state.ratedCurrentPage, sortedMovies);
 
@@ -155,15 +161,20 @@ export default class MovieBord extends Component {
               onChange={(e) => this.debouncedSearch(e.target.value)}
             />
             <div className="movieItemContainer">
-              {currentSearchMovies.map((movie, index) => (
-                <div key={index} className="movieItemContainerChild">
-                  <MovieItem
-                    movie={movie}
-                    genres={this.getGenreNames(movie.genre_ids)}
-                    onRatingUpdate={this.handleRatingUpdate}
-                  />
-                </div>
-              ))}
+              {currentSearchMovies.map((movie, index) => {
+                const genreNames = this.getGenreNames(movie.genre_ids);
+                return (
+                  <div key={index} className="movieItemContainerChild">
+                    <MovieItem
+                      guestSessionId={this.context.guestSessionId}
+                      movie={movie}
+                      genres={genreNames}
+                      onRatingUpdate={this.handleRatingUpdate}
+                      onRatedMoviesUpdate={this.updateRatedMovies}
+                    />
+                  </div>
+                );
+              })}
             </div>
             <Pagination
               className="Pagination"
@@ -182,15 +193,20 @@ export default class MovieBord extends Component {
         content: (
           <>
             <div className="movieItemContainer">
-              {currentRatedMovies.map((movie, index) => (
-                <div key={index} className="movieItemContainerChild">
-                  <MovieItem
-                    movie={movie}
-                    genres={this.getGenreNames(movie.genre_ids)}
-                    onRatingUpdate={this.handleRatingUpdate}
-                  />
-                </div>
-              ))}
+              {currentRatedMovies.map((movie, index) => {
+                const genreNames = this.getGenreNames(movie.genre_ids);
+                return (
+                  <div key={index} className="movieItemContainerChild">
+                    <MovieItem
+                      guestSessionId={this.context.guestSessionId}
+                      movie={movie}
+                      genres={genreNames}
+                      onRatingUpdate={this.handleRatingUpdate}
+                      onRatedMoviesUpdate={this.updateRatedMovies}
+                    />
+                  </div>
+                );
+              })}
             </div>
             <Pagination
               className="Pagination"
@@ -223,4 +239,3 @@ export default class MovieBord extends Component {
     return <div className="card-container">{movieContent}</div>;
   }
 }
-MovieBord.contextType = RatingContext;

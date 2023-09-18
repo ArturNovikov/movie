@@ -1,14 +1,14 @@
 import React from 'react';
 
 import './app.css';
-import { RatingProvider } from '../rating-context/RatingContext';
+import { ContextProvider } from '../contexts/contextAll';
 import MovieBord from '../movie-bord';
 
 const App = () => (
   <div className="App">
-    <RatingProvider>
+    <ContextProvider>
       <MovieBord />
-    </RatingProvider>
+    </ContextProvider>
   </div>
 );
 

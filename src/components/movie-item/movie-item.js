@@ -4,7 +4,8 @@ import { Card, Space, Tag, Rate, Spin } from 'antd';
 import RatingCircle from '../raiting-circle';
 import CardDescription from '../card-descriptions';
 import DateFormat from '../date-format';
-import RatingContext from '../rating-context/RatingContext';
+import ContextAll from '../contexts/contextAll';
+import MovieService from '../../services';
 
 import icon from './—Pngtree—cartoon illustration comics bomb explosion_12297985.png';
 import './movie-item.css';
@@ -37,6 +38,19 @@ class MovieItem extends Component {
     });
   };
 
+  async handleRatingChange(movieId, newRating) {
+    const { guestSessionId } = this.props;
+
+    try {
+      const response = await MovieService.rateMovie(movieId, newRating, guestSessionId);
+
+      console.log(response);
+      this.props.onRatedMoviesUpdate();
+    } catch (error) {
+      console.error('Error on refresh rating:', error);
+    }
+  }
+
   roundHalf = (num) => Math.round(num * 2) / 2;
 
   render() {
@@ -44,7 +58,7 @@ class MovieItem extends Component {
     const { loading, error } = this.state;
 
     return (
-      <RatingContext.Consumer>
+      <ContextAll.Consumer>
         {({ ratings, setRating }) => (
           <Card hoverable style={{ width: 451, height: 279, borderRadius: 0, position: 'relative' }}>
             <div className="container">
@@ -79,6 +93,7 @@ class MovieItem extends Component {
                   value={ratings[movie.id] || this.roundHalf(movie.vote_average)}
                   onChange={(value) => {
                     setRating(movie.id, value, this.props.onRatingUpdate);
+                    this.handleRatingChange(movie.id, value);
                   }}
                 />
               </div>
@@ -88,7 +103,7 @@ class MovieItem extends Component {
             </div>
           </Card>
         )}
-      </RatingContext.Consumer>
+      </ContextAll.Consumer>
     );
   }
 }
