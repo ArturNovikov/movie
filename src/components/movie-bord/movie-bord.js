@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { Component } from 'react';
 import { Pagination, Tabs, Input, Spin, Alert } from 'antd';
 import debounce from 'lodash/debounce';
@@ -29,20 +30,25 @@ export default class MovieBord extends Component {
 
   componentDidMount() {
     const { guestSessionId } = this.context;
-    const moviesPromise = MovieService.getAllMovies();
+    console.log('Consumed guestSessionId:', guestSessionId);
+    /* const moviesPromise = MovieService.getAllMovies(); */
     const genresPromise = MovieService.getGenres();
     const ratedMoviesPromise = guestSessionId
       ? MovieService.getRatedMovies(guestSessionId)
       : Promise.resolve({ results: [] });
-
-    Promise.all([moviesPromise, genresPromise, ratedMoviesPromise])
-      .then(([moviesData, genresData, ratedMoviesData]) => {
+    console.log('Consumed guestSessionId:', guestSessionId);
+    Promise.all([, /* moviesPromise */ genresPromise, ratedMoviesPromise])
+      .then(([, /* moviesData */ genresData, ratedMoviesData]) => {
+        console.log('componentDidMount:', ratedMoviesData.results);
+        /* console.log('componentDidMount:', moviesData.results); */
+        console.log('componentDidMount:', genresData.genres);
         this.setState({
-          movies: moviesData.results,
+          /*  movies: moviesData.results, */
           genres: genresData.genres,
           ratedMovies: ratedMoviesData.results,
           loading: false,
         });
+        console.log('componentDidMount:', ratedMoviesData.results);
       })
       .catch((error) => {
         console.error(error);
@@ -54,8 +60,11 @@ export default class MovieBord extends Component {
   }
 
   getRatedMovies = (guestSessionId) => {
+    console.log('Consumed guestSessionId:', guestSessionId);
+    console.log('Using guestSessionId to fetch rated movies:', guestSessionId);
     MovieService.getRatedMovies(guestSessionId)
       .then((data) => {
+        console.log('Rated movies data Empty?: ', data);
         this.setState({ ratedMovies: data.results });
       })
       .catch((err) => {
@@ -75,23 +84,26 @@ export default class MovieBord extends Component {
     return moviesList.slice(startIndex, endIndex);
   };
 
-  handleRatingUpdate = () => {
+  /*   handleRatingUpdate = () => {
     if (!this.state.movies || !this.context.ratings) return;
 
     const ratedMovies = this.state.movies.filter((movie) => this.context.ratings[movie.id]);
     this.setState({ ratedMovies });
-  };
+  }; */
 
   updateRatedMovies = () => {
     const { guestSessionId } = this.context;
     this.getRatedMovies(guestSessionId);
+    console.log('Consumed guestSessionId:', guestSessionId);
   };
 
   handlePageChange = (type, page) => {
     this.setState({ loading: true });
 
     const fetchMovies =
-      type === 'search' ? MovieService.getAllMovies(page) : MovieService.searchMovies(this.state.currentQuery, page);
+      type === 'search'
+        ? /* MovieService.getAllMovies(page) : */ MovieService.searchMovies(this.state.currentQuery, page)
+        : null;
 
     fetchMovies
       .then((data) => {
@@ -149,6 +161,8 @@ export default class MovieBord extends Component {
     const currentSearchMovies = this.getCurrentMovies(this.state.searchCurrentPage, movies);
     const currentRatedMovies = this.getCurrentMovies(this.state.ratedCurrentPage, sortedMovies);
 
+    console.log('currentRatedMovies by GET: ', currentRatedMovies);
+
     const items = [
       {
         key: '1',
@@ -169,7 +183,7 @@ export default class MovieBord extends Component {
                       guestSessionId={this.context.guestSessionId}
                       movie={movie}
                       genres={genreNames}
-                      onRatingUpdate={this.handleRatingUpdate}
+                      /* onRatingUpdate={this.handleRatingUpdate} */
                       onRatedMoviesUpdate={this.updateRatedMovies}
                     />
                   </div>
@@ -201,7 +215,7 @@ export default class MovieBord extends Component {
                       guestSessionId={this.context.guestSessionId}
                       movie={movie}
                       genres={genreNames}
-                      onRatingUpdate={this.handleRatingUpdate}
+                      /* onRatingUpdate={this.handleRatingUpdate} */
                       onRatedMoviesUpdate={this.updateRatedMovies}
                     />
                   </div>
@@ -213,7 +227,7 @@ export default class MovieBord extends Component {
               current={this.state.ratedCurrentPage}
               onChange={(page) => this.handlePageChange('rated', page)}
               pageSize={itemsPerPage}
-              total={movies.length}
+              total={this.state.ratedMovies.length}
             />
           </>
         ),

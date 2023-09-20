@@ -1,4 +1,8 @@
+/* eslint-disable */
 class MovieService {
+  _baseUrl = 'https://api.themoviedb.org/3';
+  _apiKey = 'fc2daa1559e2a45324f9e13dd4ad4b0d';
+
   async getResourse(url) {
     const options = {
       method: 'GET',
@@ -17,16 +21,27 @@ class MovieService {
     return await res.json();
   }
 
-  createGuestSession() {
+  /*   createGuestSession() {
     const url = `https://api.themoviedb.org/3/authentication/guest_session/new?api_key=${process.env.REACT_APP_MOVIE_KEY}`;
     return this.getResourse(url);
+  } */
+  async createGuestSession() {
+    const res = await fetch(this._baseUrl + `/authentication/guest_session/new?api_key=${this._apiKey}`, {
+      method: 'GET',
+    });
+
+    if (!res.ok) {
+      throw new Error('Ошибка при получении гостевого токена');
+    }
+
+    return await res.json();
   }
 
-  getAllMovies(page = 1) {
+  /*   getAllMovies(query, page = 1) {
     return this.getResourse(
-      `https://api.themoviedb.org/3/search/movie?query=lord&include_adult=false&language=en-US&page=${page}`
+      `https://api.themoviedb.org/3/search/movie?query=${query}&include_adult=false&language=en-US&page=${page}`
     );
-  }
+  } */
 
   getGenres() {
     return this.getResourse('https://api.themoviedb.org/3/genre/movie/list?language=en');
@@ -40,14 +55,24 @@ class MovieService {
     );
   }
 
-  getRatedMovies(guestSessionId) {
-    return this.getResourse(
-      `https://api.themoviedb.org/3/guest_session/${guestSessionId}/rated/movies?language=en-US&page=1&sort_by=created_at.asc`
-    );
+  async getRatedMovies(guestSessionId) {
+    const res = await fetch(this._baseUrl + `/guest_session/${guestSessionId}/rated/movies?api_key=${this._apiKey}`, {
+      method: 'GET',
+    });
+
+    if (!res.ok) {
+      throw new Error('Ошибка при получении оцененных фильмах');
+    }
+
+    return await res.json();
   }
 
-  rateMovie(movieId, ratingValue, guestSessionId) {
+  /*   async rateMovie(movieId, ratingValue, guestSessionId) {
+    console.log('Using guestSessionId for rating:', guestSessionId);
+    console.log('rateMovie function was called');
+    console.log('Rating movie with guestSessionId:', guestSessionId);
     const url = `https://api.themoviedb.org/3/movie/${movieId}/rating?guest_session_id=${guestSessionId}`;
+    console.log(movieId);
     const options = {
       method: 'POST',
       headers: {
@@ -58,12 +83,30 @@ class MovieService {
       body: JSON.stringify({ value: ratingValue }),
     };
 
-    return fetch(url, options).then((response) => {
-      if (!response.ok) {
-        throw new Error(`Could not post rating for ${url}, received ${response.status}`);
+    console.log(options.body);
+
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      throw new Error(`Could not post rating for ${url}, received ${response.status}`);
+    }
+    return await response.json();
+  } */
+  async rateMovie(movieId, ratingValue, guestSessionId) {
+    const res = await fetch(
+      this._baseUrl + `/movie/${movieId}/rating?api_key=${this._apiKey}&guest_session_id=${guestSessionId}`,
+      {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json;charset=utf-8',
+        },
+        body: JSON.stringify({ value: ratingValue }),
       }
-      return response.json();
-    });
+    );
+
+    if (!res.ok) {
+      throw new Error('Ошибка при добавлении рейтинга');
+    }
   }
 }
 

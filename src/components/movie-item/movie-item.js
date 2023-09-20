@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { Component } from 'react';
 import { Card, Space, Tag, Rate, Spin } from 'antd';
 
@@ -40,10 +41,10 @@ class MovieItem extends Component {
 
   async handleRatingChange(movieId, newRating) {
     const { guestSessionId } = this.props;
-
+    console.log('Consumed guestSessionId:', guestSessionId);
     try {
       const response = await MovieService.rateMovie(movieId, newRating, guestSessionId);
-
+      console.log('Consumed guestSessionId:', guestSessionId);
       console.log(response);
       this.props.onRatedMoviesUpdate();
     } catch (error) {

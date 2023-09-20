@@ -20,6 +20,7 @@ export class ContextProvider extends React.Component {
   componentDidMount() {
     Promise.all([MovieService.getGenres(), MovieService.createGuestSession()])
       .then(([genresData, sessionData]) => {
+        console.log('Setting guestSessionId:', sessionData.guest_session_id);
         this.setState({
           genres: genresData.genres,
           guestSessionId: sessionData.guest_session_id,
