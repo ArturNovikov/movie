@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { Component } from 'react';
 import { Pagination, Tabs, Input, Spin, Alert } from 'antd';
 import debounce from 'lodash/debounce';
@@ -22,7 +21,10 @@ export default class MovieBord extends Component {
       initialized: false,
       error: null,
       currentQuery: '',
-      ratedMovies: [],
+      ratedMovies: {},
+      hideOnSinglePage: true,
+      activeTab: '1',
+      ratedTotalPages: 1,
     };
 
     this.debouncedSearch = debounce(this.handleMovieSearch, 500);
@@ -30,25 +32,17 @@ export default class MovieBord extends Component {
 
   componentDidMount() {
     const { guestSessionId } = this.context;
-    console.log('Consumed guestSessionId:', guestSessionId);
-    /* const moviesPromise = MovieService.getAllMovies(); */
     const genresPromise = MovieService.getGenres();
     const ratedMoviesPromise = guestSessionId
       ? MovieService.getRatedMovies(guestSessionId)
       : Promise.resolve({ results: [] });
-    console.log('Consumed guestSessionId:', guestSessionId);
-    Promise.all([, /* moviesPromise */ genresPromise, ratedMoviesPromise])
-      .then(([, /* moviesData */ genresData, ratedMoviesData]) => {
-        console.log('componentDidMount:', ratedMoviesData.results);
-        /* console.log('componentDidMount:', moviesData.results); */
-        console.log('componentDidMount:', genresData.genres);
+    Promise.all([genresPromise, ratedMoviesPromise])
+      .then(([genresData, ratedMoviesData]) => {
         this.setState({
-          /*  movies: moviesData.results, */
           genres: genresData.genres,
           ratedMovies: ratedMoviesData.results,
           loading: false,
         });
-        console.log('componentDidMount:', ratedMoviesData.results);
       })
       .catch((error) => {
         console.error(error);
@@ -59,17 +53,22 @@ export default class MovieBord extends Component {
       });
   }
 
-  getRatedMovies = (guestSessionId) => {
-    console.log('Consumed guestSessionId:', guestSessionId);
-    console.log('Using guestSessionId to fetch rated movies:', guestSessionId);
-    MovieService.getRatedMovies(guestSessionId)
+  getRatedMovies = (guestSessionId, page) => {
+    MovieService.getRatedMovies(guestSessionId, page)
       .then((data) => {
-        console.log('Rated movies data Empty?: ', data);
-        this.setState({ ratedMovies: data.results });
+        this.setState({
+          allRatedMovies: data.results,
+          ratedTotalResults: data.total_results,
+        });
       })
       .catch((err) => {
         console.error('Error fetching rated movies:', err);
       });
+  };
+
+  updateRatedMovies = () => {
+    const { guestSessionId } = this.context;
+    this.getRatedMovies(guestSessionId, this.state.ratedCurrentPage);
   };
 
   getGenreNames(genreIds) {
@@ -81,42 +80,46 @@ export default class MovieBord extends Component {
   getCurrentMovies = (currentPage, moviesList) => {
     const startIndex = (currentPage - 1) * this.state.itemsPerPage;
     const endIndex = startIndex + this.state.itemsPerPage;
-    return moviesList.slice(startIndex, endIndex);
-  };
-
-  /*   handleRatingUpdate = () => {
-    if (!this.state.movies || !this.context.ratings) return;
-
-    const ratedMovies = this.state.movies.filter((movie) => this.context.ratings[movie.id]);
-    this.setState({ ratedMovies });
-  }; */
-
-  updateRatedMovies = () => {
-    const { guestSessionId } = this.context;
-    this.getRatedMovies(guestSessionId);
-    console.log('Consumed guestSessionId:', guestSessionId);
+    return moviesList ? moviesList.slice(startIndex, endIndex) : [];
   };
 
   handlePageChange = (type, page) => {
     this.setState({ loading: true });
 
-    const fetchMovies =
-      type === 'search'
-        ? /* MovieService.getAllMovies(page) : */ MovieService.searchMovies(this.state.currentQuery, page)
-        : null;
+    let fetchMovies;
+
+    if (type === 'search') {
+      fetchMovies = MovieService.searchMovies(this.state.currentQuery, page);
+    } else if (type === 'rated') {
+      fetchMovies = MovieService.getRatedMovies(this.context.guestSessionId, page);
+    }
+
+    if (!fetchMovies) {
+      this.setState({ loading: false });
+      return;
+    }
 
     fetchMovies
       .then((data) => {
-        this.setState({
-          movies: data.results,
-          loading: false,
-          [`${type}CurrentPage`]: page,
-        });
+        if (type === 'search') {
+          this.setState({
+            movies: data.results,
+            loading: false,
+            searchCurrentPage: page,
+          });
+        } else if (type === 'rated') {
+          this.setState((prevState) => ({
+            ratedMovies: {
+              ...prevState.ratedMovies,
+              [page]: data.results,
+            },
+            loading: false,
+            ratedCurrentPage: page,
+          }));
+        }
       })
-
       .catch((error) => {
         console.log(error);
-
         this.setState({
           error: 'Error of loading movies for current Page.',
           loading: false,
@@ -137,7 +140,7 @@ export default class MovieBord extends Component {
         } else {
           this.setState({
             movies: [],
-            error: 'По вашему запросу ничего не найдено.',
+            error: 'Nothing is found on your request.',
             loading: false,
           });
         }
@@ -145,7 +148,7 @@ export default class MovieBord extends Component {
       .catch((error) => {
         console.error(error);
         this.setState({
-          error: 'При поиске фильмов произошла ошибка.',
+          error: 'Error on movie search.',
           loading: false,
         });
       });
@@ -154,14 +157,11 @@ export default class MovieBord extends Component {
   render() {
     const { movies, itemsPerPage, loading, error } = this.state;
     if (this.state.error || error) {
-      return <Alert message="Ошибка" description={this.state.error} type="error" showIcon />;
+      return <Alert message="Error" description={this.state.error} type="error" showIcon />;
     }
 
-    const sortedMovies = [...this.state.ratedMovies].sort((a, b) => b.vote_average - a.vote_average);
     const currentSearchMovies = this.getCurrentMovies(this.state.searchCurrentPage, movies);
-    const currentRatedMovies = this.getCurrentMovies(this.state.ratedCurrentPage, sortedMovies);
-
-    console.log('currentRatedMovies by GET: ', currentRatedMovies);
+    const currentRatedMovies = this.getCurrentMovies(this.state.ratedCurrentPage, this.state.allRatedMovies);
 
     const items = [
       {
@@ -170,20 +170,23 @@ export default class MovieBord extends Component {
         content: (
           <>
             <Input.Search
+              value={this.state.currentQuery}
               placeholder="Type to search..."
               className="InputSearch"
-              onChange={(e) => this.debouncedSearch(e.target.value)}
+              onChange={(e) => {
+                this.setState({ currentQuery: e.target.value });
+                this.debouncedSearch(e.target.value);
+              }}
             />
             <div className="movieItemContainer">
-              {currentSearchMovies.map((movie, index) => {
+              {currentSearchMovies.map((movie) => {
                 const genreNames = this.getGenreNames(movie.genre_ids);
                 return (
-                  <div key={index} className="movieItemContainerChild">
+                  <div key={movie.id} className="movieItemContainerChild">
                     <MovieItem
                       guestSessionId={this.context.guestSessionId}
                       movie={movie}
                       genres={genreNames}
-                      /* onRatingUpdate={this.handleRatingUpdate} */
                       onRatedMoviesUpdate={this.updateRatedMovies}
                     />
                   </div>
@@ -192,10 +195,12 @@ export default class MovieBord extends Component {
             </div>
             <Pagination
               className="Pagination"
+              defaultCurrent={1}
               current={this.state.searchCurrentPage}
               onChange={(page) => this.handlePageChange('search', page)}
               pageSize={itemsPerPage}
               total={movies.length}
+              hideOnSinglePage={this.state.hideOnSinglePage}
             />
           </>
         ),
@@ -207,15 +212,14 @@ export default class MovieBord extends Component {
         content: (
           <>
             <div className="movieItemContainer">
-              {currentRatedMovies.map((movie, index) => {
+              {currentRatedMovies.map((movie) => {
                 const genreNames = this.getGenreNames(movie.genre_ids);
                 return (
-                  <div key={index} className="movieItemContainerChild">
+                  <div key={movie.id} className="movieItemContainerChild">
                     <MovieItem
                       guestSessionId={this.context.guestSessionId}
                       movie={movie}
                       genres={genreNames}
-                      /* onRatingUpdate={this.handleRatingUpdate} */
                       onRatedMoviesUpdate={this.updateRatedMovies}
                     />
                   </div>
@@ -224,10 +228,12 @@ export default class MovieBord extends Component {
             </div>
             <Pagination
               className="Pagination"
+              defaultCurrent={1}
               current={this.state.ratedCurrentPage}
               onChange={(page) => this.handlePageChange('rated', page)}
               pageSize={itemsPerPage}
-              total={this.state.ratedMovies.length}
+              total={this.state.ratedTotalResults}
+              hideOnSinglePage={this.state.hideOnSinglePage}
             />
           </>
         ),
@@ -241,6 +247,8 @@ export default class MovieBord extends Component {
     ) : (
       <Tabs
         defaultActiveKey="1"
+        activeKey={this.state.activeTab}
+        onChange={(key) => this.setState({ activeTab: key })}
         centered
         items={items.map((item) => ({
           key: item.key,

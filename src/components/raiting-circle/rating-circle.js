@@ -15,9 +15,13 @@ const RatingCircle = ({ score }) => {
 
   return (
     <div className="rating-circle" style={circleStyle}>
-      {score}
+      <span className="rating-circle-score">{score}</span>
     </div>
   );
+};
+
+RatingCircle.defaultProps = {
+  score: '0.0',
 };
 
 export default RatingCircle;

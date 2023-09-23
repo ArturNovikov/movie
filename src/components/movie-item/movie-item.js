@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { Component } from 'react';
 import { Card, Space, Tag, Rate, Spin } from 'antd';
 
@@ -41,11 +40,8 @@ class MovieItem extends Component {
 
   async handleRatingChange(movieId, newRating) {
     const { guestSessionId } = this.props;
-    console.log('Consumed guestSessionId:', guestSessionId);
     try {
-      const response = await MovieService.rateMovie(movieId, newRating, guestSessionId);
-      console.log('Consumed guestSessionId:', guestSessionId);
-      console.log(response);
+      await MovieService.rateMovie(movieId, newRating, guestSessionId);
       this.props.onRatedMoviesUpdate();
     } catch (error) {
       console.error('Error on refresh rating:', error);
@@ -91,7 +87,7 @@ class MovieItem extends Component {
                   className="ratePosition"
                   count={10}
                   allowHalf
-                  value={ratings[movie.id] || this.roundHalf(movie.vote_average)}
+                  value={this.roundHalf(ratings[movie.id])}
                   onChange={(value) => {
                     setRating(movie.id, value, this.props.onRatingUpdate);
                     this.handleRatingChange(movie.id, value);
@@ -99,7 +95,10 @@ class MovieItem extends Component {
                 />
               </div>
               <div className="rating-circle-container">
-                <RatingCircle key={Date.now()} score={(ratings[movie.id] || movie.vote_average).toFixed(1)} />
+                <RatingCircle
+                  key={Date.now()}
+                  score={ratings[movie.id] ? this.roundHalf(ratings[movie.id]).toFixed(1) : undefined}
+                />
               </div>
             </div>
           </Card>
