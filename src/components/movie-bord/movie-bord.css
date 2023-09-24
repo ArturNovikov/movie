@@ -9,6 +9,16 @@
   height: 279px;
 }
 
+.ant-input-group-addon {
+  display: none !important;
+}
+
+div:where(.css-i0102m).ant-card .ant-card-body {
+    padding: 0px;
+    border-radius: 0 0 8px 8px;
+}
+
+
 :where(.css-dev-only-do-not-override-i0102m).ant-tabs > .ant-tabs-nav .ant-tabs-nav-wrap,
 :where(.css-dev-only-do-not-override-i0102m).ant-tabs > div > .ant-tabs-nav .ant-tabs-nav-wrap {
   justify-content: space-evenly;
