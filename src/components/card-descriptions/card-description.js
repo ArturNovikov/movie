@@ -1,5 +1,5 @@
 import React from 'react';
-import './card-description';
+import './card-description.css';
 
 const CardDescription = ({ overview }) => {
   const truncateDescription = (str, maxLength = 150) => {

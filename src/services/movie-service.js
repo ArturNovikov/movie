@@ -10,13 +10,10 @@ class MovieService {
         Authorization: `Bearer ${process.env.REACT_APP_MOVIE_KEY}`,
       },
     };
-
     const res = await fetch(url, options);
-
     if (!res.ok) {
       throw new Error(`Could not fetch ${url}, received ${res.status}`);
     }
-
     return await res.json();
   }
 
@@ -33,14 +30,12 @@ class MovieService {
   }
 
   getGenres() {
-    return this.getResourse('https://api.themoviedb.org/3/genre/movie/list?language=en');
+    return this.getResourse(`${this._baseUrl}/genre/movie/list?language=en`);
   }
 
   searchMovies(query, page = 1) {
     return this.getResourse(
-      `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(
-        query
-      )}&include_adult=false&language=en-US&page=${page}`
+      `${this._baseUrl}/search/movie?query=${encodeURIComponent(query)}&include_adult=false&language=en-US&page=${page}`
     );
   }
 

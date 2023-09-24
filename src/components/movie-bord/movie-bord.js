@@ -25,6 +25,7 @@ export default class MovieBord extends Component {
       hideOnSinglePage: true,
       activeTab: '1',
       ratedTotalPages: 1,
+      ratedTotalResults: [],
     };
 
     this.debouncedSearch = debounce(this.handleMovieSearch, 500);
@@ -248,7 +249,11 @@ export default class MovieBord extends Component {
       <Tabs
         defaultActiveKey="1"
         activeKey={this.state.activeTab}
-        onChange={(key) => this.setState({ activeTab: key })}
+        onChange={(key) => {
+          this.setState({ activeTab: key });
+          this.updateRatedMovies();
+        }}
+        onTabClick={this.updateRatedMovies}
         centered
         items={items.map((item) => ({
           key: item.key,

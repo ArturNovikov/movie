@@ -42,7 +42,7 @@ class MovieItem extends Component {
     const { guestSessionId } = this.props;
     try {
       await MovieService.rateMovie(movieId, newRating, guestSessionId);
-      this.props.onRatedMoviesUpdate();
+      await this.props.onRatedMoviesUpdate();
     } catch (error) {
       console.error('Error on refresh rating:', error);
     }
@@ -91,6 +91,7 @@ class MovieItem extends Component {
                   onChange={(value) => {
                     setRating(movie.id, value, this.props.onRatingUpdate);
                     this.handleRatingChange(movie.id, value);
+                    this.props.onRatedMoviesUpdate();
                   }}
                 />
               </div>

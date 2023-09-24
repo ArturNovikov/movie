@@ -1,4 +1,4 @@
-.cardDescription {
+p.cardDescription {
   font-family: Inter UI;
   font-size: 12px;
   line-height: 22px;
@@ -8,9 +8,10 @@
 
   margin-top: 0;
   margin-bottom: 7px;
+  padding-right: 7px;
 }
 
-p .noDescription {
-  color: red !important;
+p.noDescription {
+  color: red;
   font-style: italic;
 }
