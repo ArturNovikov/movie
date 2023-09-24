@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Pagination, Tabs, Input, Spin, Alert } from 'antd';
+import { Pagination, Tabs, Input, Spin, Alert, ConfigProvider } from 'antd';
 import debounce from 'lodash/debounce';
 
 import ContextAll from '../contexts/contextAll';
@@ -170,39 +170,56 @@ export default class MovieBord extends Component {
         label: 'Search',
         content: (
           <>
-            <Input.Search
-              value={this.state.currentQuery}
-              placeholder="Type to search..."
-              className="InputSearch"
-              onChange={(e) => {
-                this.setState({ currentQuery: e.target.value });
-                this.debouncedSearch(e.target.value);
+            <ConfigProvider
+              theme={{
+                token: {
+                  borderRadius: 6,
+                },
+                components: {
+                  Pagination: {
+                    itemActiveBg: '#1890FF',
+                    itemActiveColorDisabled: 'rgba(0, 0, 0, 0.65)',
+                  },
+                },
               }}
-            />
-            <div className="movieItemContainer">
-              {currentSearchMovies.map((movie) => {
-                const genreNames = this.getGenreNames(movie.genre_ids);
-                return (
-                  <div key={movie.id} className="movieItemContainerChild">
-                    <MovieItem
-                      guestSessionId={this.context.guestSessionId}
-                      movie={movie}
-                      genres={genreNames}
-                      onRatedMoviesUpdate={this.updateRatedMovies}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-            <Pagination
-              className="Pagination"
-              defaultCurrent={1}
-              current={this.state.searchCurrentPage}
-              onChange={(page) => this.handlePageChange('search', page)}
-              pageSize={itemsPerPage}
-              total={movies.length}
-              hideOnSinglePage={this.state.hideOnSinglePage}
-            />
+            >
+              <Input
+                id="Input"
+                value={this.state.currentQuery}
+                placeholder="Type to search..."
+                className="InputSearch"
+                onChange={(e) => {
+                  this.setState({ currentQuery: e.target.value });
+                  this.debouncedSearch(e.target.value);
+                }}
+              />
+
+              <div className="movieItemContainer">
+                {currentSearchMovies.map((movie) => {
+                  const genreNames = this.getGenreNames(movie.genre_ids);
+                  return (
+                    <div key={movie.id} className="movieItemContainerChild">
+                      <MovieItem
+                        guestSessionId={this.context.guestSessionId}
+                        movie={movie}
+                        genres={genreNames}
+                        onRatedMoviesUpdate={this.updateRatedMovies}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+              <Pagination
+                className="Pagination"
+                defaultCurrent={1}
+                current={this.state.searchCurrentPage}
+                onChange={(page) => this.handlePageChange('search', page)}
+                pageSize={itemsPerPage}
+                total={movies.length}
+                hideOnSinglePage={this.state.hideOnSinglePage}
+                itemActiveBg={this.ConfigProvider}
+              />
+            </ConfigProvider>
           </>
         ),
       },
