@@ -93,7 +93,7 @@ div:where(.css-i0102m).ant-card .ant-card-body {
   padding: 0;
   border: 0;
 }
-:where(.css-dev-only-do-not-override-48zcnw).ant-pagination .ant-pagination-item-active a {
+:where(.css-48zcnw).ant-pagination .ant-pagination-item-active a {
   color: white;
 }
 
