@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { Component } from 'react';
 import { Pagination, Tabs, Input, Spin, Alert, ConfigProvider } from 'antd';
 import debounce from 'lodash/debounce';
@@ -16,16 +17,17 @@ export default class MovieBord extends Component {
       movies: [],
       searchCurrentPage: 1,
       ratedCurrentPage: 1,
-      itemsPerPage: 6,
+      itemsPerPage: 20,
       loading: true,
       initialized: false,
       error: null,
       currentQuery: '',
-      ratedMovies: {},
+      ratedMovies: [],
       hideOnSinglePage: true,
       activeTab: '1',
       ratedTotalPages: 1,
       ratedTotalResults: [],
+      totalPages: 1,
     };
 
     this.debouncedSearch = debounce(this.handleMovieSearch, 500);
@@ -58,7 +60,7 @@ export default class MovieBord extends Component {
     MovieService.getRatedMovies(guestSessionId, page)
       .then((data) => {
         this.setState({
-          allRatedMovies: data.results,
+          ratedMovies: data.results,
           ratedTotalResults: data.total_results,
         });
       })
@@ -91,8 +93,10 @@ export default class MovieBord extends Component {
 
     if (type === 'search') {
       fetchMovies = MovieService.searchMovies(this.state.currentQuery, page);
+      console.log(this.state.currentQuery, page);
     } else if (type === 'rated') {
       fetchMovies = MovieService.getRatedMovies(this.context.guestSessionId, page);
+      console.log(this.context.guestSessionId, page);
     }
 
     if (!fetchMovies) {
@@ -103,20 +107,27 @@ export default class MovieBord extends Component {
     fetchMovies
       .then((data) => {
         if (type === 'search') {
+          console.log(data);
           this.setState({
             movies: data.results,
             loading: false,
-            searchCurrentPage: page,
+            searchCurrentPage: data.page,
           });
         } else if (type === 'rated') {
-          this.setState((prevState) => ({
+          /*           this.setState((prevState) => ({
             ratedMovies: {
               ...prevState.ratedMovies,
               [page]: data.results,
             },
             loading: false,
             ratedCurrentPage: page,
-          }));
+          })); */
+          console.log(data);
+          this.setState({
+            ratedMovies: data.results,
+            loading: false,
+            ratedCurrentPage: data.page,
+          });
         }
       })
       .catch((error) => {
@@ -128,15 +139,17 @@ export default class MovieBord extends Component {
       });
   };
 
-  handleMovieSearch = (query) => {
+  handleMovieSearch = (query, page = 1) => {
     this.setState({ loading: true });
-    MovieService.searchMovies(query)
+    MovieService.searchMovies(query, (page = 1))
       .then((data) => {
         if (data.results && data.results.length > 0) {
+          console.log(data.total_results, data);
           this.setState({
             movies: data.results,
             currentPage: 1,
             loading: false,
+            totalPages: data.total_pages,
           });
         } else {
           this.setState({
@@ -156,13 +169,12 @@ export default class MovieBord extends Component {
   };
 
   render() {
-    const { movies, itemsPerPage, loading, error } = this.state;
+    const { movies, itemsPerPage, loading, error, ratedMovies } = this.state;
     if (this.state.error || error) {
       return <Alert message="Error" description={this.state.error} type="error" showIcon />;
     }
-
-    const currentSearchMovies = this.getCurrentMovies(this.state.searchCurrentPage, movies);
-    const currentRatedMovies = this.getCurrentMovies(this.state.ratedCurrentPage, this.state.allRatedMovies);
+    const currentSearchMovies = movies;
+    const currentRatedMovies = ratedMovies;
 
     const items = [
       {
@@ -215,7 +227,7 @@ export default class MovieBord extends Component {
                 current={this.state.searchCurrentPage}
                 onChange={(page) => this.handlePageChange('search', page)}
                 pageSize={itemsPerPage}
-                total={movies.length}
+                total={this.state.totalPages}
                 hideOnSinglePage={this.state.hideOnSinglePage}
                 itemActiveBg={this.ConfigProvider}
               />

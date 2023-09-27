@@ -33,13 +33,15 @@ class MovieService {
     return this.getResourse(`${this._baseUrl}/genre/movie/list?language=en`);
   }
 
-  searchMovies(query, page = 1) {
+  searchMovies(query, page) {
+    console.log(query, page);
     return this.getResourse(
       `${this._baseUrl}/search/movie?query=${encodeURIComponent(query)}&include_adult=false&language=en-US&page=${page}`
     );
   }
 
-  async getRatedMovies(guestSessionId, page = 1) {
+  async getRatedMovies(guestSessionId, page) {
+    console.log(guestSessionId, page);
     const res = await fetch(
       `${this._baseUrl}/guest_session/${guestSessionId}/rated/movies?api_key=${this._apiKey}&page=${page}`,
       { method: 'GET' }
@@ -49,6 +51,7 @@ class MovieService {
       throw new Error('Error on GET rated movies.');
     }
     const data = await res.json();
+    console.log(data);
     return data;
   }
 
