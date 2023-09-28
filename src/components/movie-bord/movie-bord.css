@@ -13,25 +13,24 @@
   display: none !important;
 }
 div:where(.css-i0102m).ant-card .ant-card-body {
-    padding: 0px;
-    border-radius: 0 0 8px 8px;
-} 
-
+  padding: 0px;
+  border-radius: 0 0 8px 8px;
+}
 
 :where(.css-dev-only-do-not-override-i0102m).ant-tabs > .ant-tabs-nav .ant-tabs-nav-wrap,
 :where(.css-dev-only-do-not-override-i0102m).ant-tabs > div > .ant-tabs-nav .ant-tabs-nav-wrap {
   justify-content: space-evenly;
-} 
+}
 
-  :where(.css-dev-only-do-not-override-i0102m).ant-input-search > .ant-input-group > .ant-input-group-addon:last-child {
-    display: none;
-  }
+:where(.css-dev-only-do-not-override-i0102m).ant-input-search > .ant-input-group > .ant-input-group-addon:last-child {
+  display: none;
+}
 
 .ant-input-search .ant-input {
   border-top-right-radius: 3px !important;
   border-bottom-right-radius: 3px !important;
-} 
- :where(.css-dev-only-do-not-override-i0102m).ant-tabs-top > .ant-tabs-nav::before,
+}
+:where(.css-dev-only-do-not-override-i0102m).ant-tabs-top > .ant-tabs-nav::before,
 :where(.css-dev-only-do-not-override-i0102m).ant-tabs-bottom > .ant-tabs-nav::before,
 :where(.css-dev-only-do-not-override-i0102m).ant-tabs-top > div > .ant-tabs-nav::before,
 :where(.css-dev-only-do-not-override-i0102m).ant-tabs-bottom > div > .ant-tabs-nav::before {
@@ -59,7 +58,7 @@ div:where(.css-i0102m).ant-card .ant-card-body {
 }
 
 .ant-tabs-ink-bar-animated {
-    transform: translateX(-30%) !important;
+  transform: translateX(-30%) !important;
 }
 
 :where(.css-dev-only-do-not-override-i0102m).ant-input {
@@ -116,3 +115,20 @@ div:where(.css-i0102m).ant-card .ant-card-body {
   border-radius: 4px;
 }
 
+.search-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 115px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: transparent;
+}
+
+.search-image-container img {
+  width: 50px;
+  height: 50px;
+  background-color: transparent;
+}

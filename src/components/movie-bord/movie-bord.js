@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { Component } from 'react';
 import { Pagination, Tabs, Input, Spin, Alert, ConfigProvider } from 'antd';
 import debounce from 'lodash/debounce';
@@ -6,8 +5,24 @@ import debounce from 'lodash/debounce';
 import ContextAll from '../contexts/contextAll';
 import MovieItem from '../movie-item/';
 import MovieService from '../../services';
+import iconSearch from '../../assets/search.png';
 
 import './movie-bord.css';
+
+const configSettings = {
+  theme: {
+    token: {
+      paddingLG: 0,
+      borderRadius: 6,
+      colorPrimary: 'white',
+    },
+    components: {
+      Pagination: {
+        itemActiveBg: '#1890FF',
+      },
+    },
+  },
+};
 
 export default class MovieBord extends Component {
   static contextType = ContextAll;
@@ -23,11 +38,9 @@ export default class MovieBord extends Component {
       error: null,
       currentQuery: '',
       ratedMovies: [],
-      hideOnSinglePage: true,
       activeTab: '1',
-      ratedTotalPages: 1,
       ratedTotalResults: [],
-      totalPages: 1,
+      totalPagesResults: 1,
     };
 
     this.debouncedSearch = debounce(this.handleMovieSearch, 500);
@@ -35,14 +48,13 @@ export default class MovieBord extends Component {
 
   componentDidMount() {
     const { guestSessionId } = this.context;
-    const genresPromise = MovieService.getGenres();
     const ratedMoviesPromise = guestSessionId
       ? MovieService.getRatedMovies(guestSessionId)
       : Promise.resolve({ results: [] });
-    Promise.all([genresPromise, ratedMoviesPromise])
-      .then(([genresData, ratedMoviesData]) => {
+
+    ratedMoviesPromise
+      .then((ratedMoviesData) => {
         this.setState({
-          genres: genresData.genres,
           ratedMovies: ratedMoviesData.results,
           loading: false,
         });
@@ -75,7 +87,7 @@ export default class MovieBord extends Component {
   };
 
   getGenreNames(genreIds) {
-    const genres = this.context.genres;
+    let genres = this.context.genres;
     if (!genreIds || !genres) return [];
     return genreIds.map((id) => genres.find((genre) => genre.id === id)?.name || '').filter((name) => name);
   }
@@ -93,10 +105,8 @@ export default class MovieBord extends Component {
 
     if (type === 'search') {
       fetchMovies = MovieService.searchMovies(this.state.currentQuery, page);
-      console.log(this.state.currentQuery, page);
     } else if (type === 'rated') {
       fetchMovies = MovieService.getRatedMovies(this.context.guestSessionId, page);
-      console.log(this.context.guestSessionId, page);
     }
 
     if (!fetchMovies) {
@@ -107,22 +117,12 @@ export default class MovieBord extends Component {
     fetchMovies
       .then((data) => {
         if (type === 'search') {
-          console.log(data);
           this.setState({
             movies: data.results,
             loading: false,
             searchCurrentPage: data.page,
           });
         } else if (type === 'rated') {
-          /*           this.setState((prevState) => ({
-            ratedMovies: {
-              ...prevState.ratedMovies,
-              [page]: data.results,
-            },
-            loading: false,
-            ratedCurrentPage: page,
-          })); */
-          console.log(data);
           this.setState({
             ratedMovies: data.results,
             loading: false,
@@ -141,15 +141,15 @@ export default class MovieBord extends Component {
 
   handleMovieSearch = (query, page = 1) => {
     this.setState({ loading: true });
-    MovieService.searchMovies(query, (page = 1))
+    let searchPage = page;
+    MovieService.searchMovies(query, searchPage)
       .then((data) => {
         if (data.results && data.results.length > 0) {
-          console.log(data.total_results, data);
           this.setState({
             movies: data.results,
             currentPage: 1,
             loading: false,
-            totalPages: data.total_pages,
+            totalPagesResults: data.total_results,
           });
         } else {
           this.setState({
@@ -169,12 +169,25 @@ export default class MovieBord extends Component {
   };
 
   render() {
-    const { movies, itemsPerPage, loading, error, ratedMovies } = this.state;
+    const {
+      movies,
+      itemsPerPage,
+      loading,
+      error,
+      ratedMovies,
+      currentQuery,
+      searchCurrentPage,
+      totalPagesResults,
+      ratedCurrentPage,
+      ratedTotalResults,
+      activeTab,
+    } = this.state;
+
+    const { guestSessionId } = this.context;
+
     if (this.state.error || error) {
       return <Alert message="Error" description={this.state.error} type="error" showIcon />;
     }
-    const currentSearchMovies = movies;
-    const currentRatedMovies = ratedMovies;
 
     const items = [
       {
@@ -182,54 +195,47 @@ export default class MovieBord extends Component {
         label: 'Search',
         content: (
           <>
-            <ConfigProvider
-              theme={{
-                token: {
-                  borderRadius: 6,
-                },
-                components: {
-                  Pagination: {
-                    itemActiveBg: '#1890FF',
-                    itemActiveColorDisabled: 'rgba(0, 0, 0, 0.65)',
-                  },
-                },
+            <Input
+              id="Input"
+              value={currentQuery}
+              placeholder="Type to search..."
+              className="InputSearch"
+              onChange={(e) => {
+                this.setState({ currentQuery: e.target.value });
+                this.debouncedSearch(e.target.value);
               }}
-            >
-              <Input
-                id="Input"
-                value={this.state.currentQuery}
-                placeholder="Type to search..."
-                className="InputSearch"
-                onChange={(e) => {
-                  this.setState({ currentQuery: e.target.value });
-                  this.debouncedSearch(e.target.value);
-                }}
-              />
-
-              <div className="movieItemContainer">
-                {currentSearchMovies.map((movie) => {
-                  const genreNames = this.getGenreNames(movie.genre_ids);
-                  return (
-                    <div key={movie.id} className="movieItemContainerChild">
-                      <MovieItem
-                        guestSessionId={this.context.guestSessionId}
-                        movie={movie}
-                        genres={genreNames}
-                        onRatedMoviesUpdate={this.updateRatedMovies}
-                      />
-                    </div>
-                  );
-                })}
+            />
+            {movies.length === 0 && !currentQuery && (
+              <div className="search-image-container">
+                <img src={iconSearch} alt="Search for movies" />
               </div>
+            )}
+            <div className="movieItemContainer">
+              {movies.map((movie) => {
+                const genreNames = this.getGenreNames(movie.genre_ids);
+                return (
+                  <div key={movie.id} className="movieItemContainerChild">
+                    <MovieItem
+                      guestSessionId={guestSessionId}
+                      movie={movie}
+                      genres={genreNames}
+                      onRatedMoviesUpdate={this.updateRatedMovies}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            <ConfigProvider {...configSettings}>
               <Pagination
                 className="Pagination"
                 defaultCurrent={1}
-                current={this.state.searchCurrentPage}
+                current={searchCurrentPage}
                 onChange={(page) => this.handlePageChange('search', page)}
-                pageSize={itemsPerPage}
-                total={this.state.totalPages}
-                hideOnSinglePage={this.state.hideOnSinglePage}
+                defaultPageSize={itemsPerPage}
+                total={totalPagesResults}
+                hideOnSinglePage={true}
                 itemActiveBg={this.ConfigProvider}
+                showSizeChanger={false}
               />
             </ConfigProvider>
           </>
@@ -241,13 +247,18 @@ export default class MovieBord extends Component {
         label: 'Rated',
         content: (
           <>
+            {movies.length === 0 && !currentQuery && (
+              <div className="search-image-container">
+                <img src={iconSearch} alt="Search for movies" />
+              </div>
+            )}
             <div className="movieItemContainer">
-              {currentRatedMovies.map((movie) => {
+              {ratedMovies.map((movie) => {
                 const genreNames = this.getGenreNames(movie.genre_ids);
                 return (
                   <div key={movie.id} className="movieItemContainerChild">
                     <MovieItem
-                      guestSessionId={this.context.guestSessionId}
+                      guestSessionId={guestSessionId}
                       movie={movie}
                       genres={genreNames}
                       onRatedMoviesUpdate={this.updateRatedMovies}
@@ -256,15 +267,18 @@ export default class MovieBord extends Component {
                 );
               })}
             </div>
-            <Pagination
-              className="Pagination"
-              defaultCurrent={1}
-              current={this.state.ratedCurrentPage}
-              onChange={(page) => this.handlePageChange('rated', page)}
-              pageSize={itemsPerPage}
-              total={this.state.ratedTotalResults}
-              hideOnSinglePage={this.state.hideOnSinglePage}
-            />
+            <ConfigProvider {...configSettings}>
+              <Pagination
+                className="Pagination"
+                defaultCurrent={1}
+                current={ratedCurrentPage}
+                onChange={(page) => this.handlePageChange('rated', page)}
+                pageSize={itemsPerPage}
+                total={ratedTotalResults}
+                hideOnSinglePage={true}
+                showSizeChanger={false}
+              />
+            </ConfigProvider>
           </>
         ),
       },
@@ -277,7 +291,7 @@ export default class MovieBord extends Component {
     ) : (
       <Tabs
         defaultActiveKey="1"
-        activeKey={this.state.activeTab}
+        activeKey={activeTab}
         onChange={(key) => {
           this.setState({ activeTab: key });
           this.updateRatedMovies();
