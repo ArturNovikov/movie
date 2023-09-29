@@ -49,6 +49,23 @@ class MovieService {
       throw new Error('Error on GET rated movies.');
     }
     const data = await res.json();
+    console.log(data);
+    return data;
+  }
+
+  async getRatingsForSession(guestSessionId, page) {
+    const res = await fetch(
+      `${this._baseUrl}/guest_session/${guestSessionId}/rated/movies?api_key=${this._apiKey}&page=${page}`,
+      {
+        method: 'GET',
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error('Error on GET session ratings.');
+    }
+    const data = await res.json();
+    console.log(data);
     return data;
   }
 

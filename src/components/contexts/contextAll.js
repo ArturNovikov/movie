@@ -16,18 +16,44 @@ export class ContextProvider extends React.Component {
     genres: [],
     guestSessionId: null,
   };
-
+  fetchRatingsRecursive = (sessionId, page = 1, allRatings = []) => {
+    return MovieService.getRatingsForSession(sessionId, page).then((data) => {
+      const newRatings = allRatings.concat(data.results);
+      if (data.page < data.total_pages) {
+        return this.fetchRatingsRecursive(sessionId, page + 1, newRatings);
+      } else {
+        return newRatings;
+      }
+    });
+  };
   componentDidMount() {
-    Promise.all([MovieService.getGenres(), MovieService.createGuestSession()])
-      .then(([genresData, sessionData]) => {
-        this.setState({
-          genres: genresData.genres,
-          guestSessionId: sessionData.guest_session_id,
+    const savedGuestSessionId = localStorage.getItem('guestSessionId');
+    if (savedGuestSessionId) {
+      this.fetchRatingsRecursive(savedGuestSessionId)
+        .then((allRatings) => {
+          let ratings = {};
+          allRatings.forEach((movie) => {
+            ratings[movie.id] = movie.rating;
+          });
+          this.setState({ ratings: ratings, guestSessionId: savedGuestSessionId });
+        })
+        .catch((error) => {
+          console.log('Error fetching ratings:', error);
         });
-      })
-      .catch((error) => {
-        console.log('Error', error);
-      });
+    } else {
+      Promise.all([MovieService.getGenres(), MovieService.createGuestSession()])
+        .then(([genresData, sessionData]) => {
+          const guestSessionId = sessionData.guest_session_id;
+          this.setState({
+            genres: genresData.genres,
+            guestSessionId: sessionData.guest_session_id,
+          });
+          localStorage.setItem('guestSessionId', guestSessionId);
+        })
+        .catch((error) => {
+          console.log('Error', error);
+        });
+    }
   }
 
   setGuestSessionId = (id) => {

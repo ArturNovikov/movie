@@ -247,7 +247,7 @@ export default class MovieBord extends Component {
         label: 'Rated',
         content: (
           <>
-            {movies.length === 0 && !currentQuery && (
+            {ratedMovies.length === 0 && (
               <div className="search-image-container">
                 <img src={iconSearch} alt="Search for movies" />
               </div>
