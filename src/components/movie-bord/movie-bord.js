@@ -296,7 +296,10 @@ export default class MovieBord extends Component {
           this.setState({ activeTab: key });
           this.updateRatedMovies();
         }}
-        onTabClick={this.updateRatedMovies}
+        onTabClick={() => {
+          this.context.onTabRatingUpdate();
+          this.updateRatedMovies();
+        }}
         centered
         items={items.map((item) => ({
           key: item.key,

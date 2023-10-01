@@ -49,10 +49,13 @@ class MovieItem extends Component {
 
   roundHalf = (num) => Math.round(num * 2) / 2;
 
+  truncateTitle = (title, maxLength = 50) => {
+    return title.length > maxLength ? title.slice(0, maxLength - 3) + '...' : title;
+  };
+
   render() {
     const { movie, genres } = this.props;
     const { loading, error } = this.state;
-
     return (
       <ContextAll.Consumer>
         {({ ratings, setRating }) => (
@@ -68,7 +71,7 @@ class MovieItem extends Component {
                 onError={this.handleImageError}
               />
               <div style={{ paddingLeft: '20px' }}>
-                <h3 className="cardHeader">{movie.title}</h3>
+                <h3 className="cardHeader">{this.truncateTitle(movie.title)}</h3>
 
                 <DateFormat release_date={movie.release_date} />
 
@@ -88,7 +91,7 @@ class MovieItem extends Component {
                   allowHalf
                   value={this.roundHalf(ratings[movie.id])}
                   onChange={(value) => {
-                    setRating(movie.id, value, this.props.onRatingUpdate);
+                    setRating(movie.id, value);
                     this.handleRatingChange(movie.id, value);
                     this.props.onRatedMoviesUpdate();
                   }}

@@ -49,7 +49,6 @@ class MovieService {
       throw new Error('Error on GET rated movies.');
     }
     const data = await res.json();
-    console.log(data);
     return data;
   }
 
@@ -65,7 +64,6 @@ class MovieService {
       throw new Error('Error on GET session ratings.');
     }
     const data = await res.json();
-    console.log(data);
     return data;
   }
 

@@ -14,7 +14,7 @@
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
-    max-width: 420px;
+    max-width: 388px;
     margin-left: 16px;
     gap: 20px;
   }
@@ -25,14 +25,7 @@
     width: 45px;
   }
 
-  .movieItemContainerChild,
-  :where(.css-dev-only-do-not-override-i0102m).ant-card-bordered,
-  :where(.css-dev-only-do-not-override-i0102m).ant-card .ant-card-body {
-    max-width: 388px;
-    height: 245px;
-  }
-
-  .movieItemContainer > .movieItemContainerChild > div.ant-card-bordered {
+  div.movieItemContainerChild > * {
     width: 388px !important;
     height: 245px !important;
   }
@@ -44,13 +37,6 @@
 
   input.ant-input {
     margin-left: 16px !important;
-  }
-
-  :where(.css-dev-only-do-not-override-i0102m).ant-input {
-    border-radius: 2px;
-    margin-left: 16px;
-    margin-right: 16px;
-    max-width: 388px;
   }
 
   h3.cardHeader {

@@ -1,5 +1,5 @@
-:where(.css-dev-only-do-not-override-i0102m).ant-card .ant-card-body {
-  padding: 0;
+div.movieItemContainerChild > div > div {
+  padding: 0 !important;
   border-radius: 0;
 }
 

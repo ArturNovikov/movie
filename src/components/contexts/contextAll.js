@@ -60,9 +60,25 @@ export class ContextProvider extends React.Component {
     this.setState({ guestSessionId: id });
   };
 
-  setRating = (movieId, value, callback) => {
+  setRating = (movieId, value) => {
     const updatedRatings = { ...this.state.ratings, [movieId]: value };
-    this.setState({ ratings: updatedRatings }, callback);
+    this.setState({ ratings: updatedRatings });
+  };
+
+  onTabRatingUpdate = () => {
+    if (this.state.guestSessionId) {
+      this.fetchRatingsRecursive(this.state.guestSessionId)
+        .then((allRatings) => {
+          let ratings = {};
+          allRatings.forEach((movie) => {
+            ratings[movie.id] = movie.rating;
+          });
+          this.setState({ ratings: ratings });
+        })
+        .catch((error) => {
+          console.log('Error updating ratings:', error);
+        });
+    }
   };
 
   render() {
@@ -74,6 +90,7 @@ export class ContextProvider extends React.Component {
           setRating: this.setRating,
           genres: this.state.genres,
           guestSessionId: this.state.guestSessionId,
+          onTabRatingUpdate: this.onTabRatingUpdate,
         }}
       >
         {children}
@@ -81,3 +98,5 @@ export class ContextProvider extends React.Component {
     );
   }
 }
+
+localStorage.clear();
