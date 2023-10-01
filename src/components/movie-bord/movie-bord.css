@@ -43,10 +43,7 @@ div:where(.css-i0102m).ant-card .ant-card-body {
   text-align: center;
 }
 
-:where(.css-dev-only-do-not-override-i0102m).ant-tabs-top > .ant-tabs-nav::before,
-:where(.css-dev-only-do-not-override-i0102m).ant-tabs-bottom > .ant-tabs-nav::before,
-:where(.css-dev-only-do-not-override-i0102m).ant-tabs-top > div > .ant-tabs-nav::before,
-:where(.css-dev-only-do-not-override-i0102m).ant-tabs-bottom > div > .ant-tabs-nav::after {
+  div.App > .card-container > div > div::before {
   content: '';
   position: absolute;
   bottom: 0;
@@ -91,9 +88,6 @@ div:where(.css-i0102m).ant-card .ant-card-body {
 :where(.css-48zcnw).ant-card .ant-card-body {
   padding: 0;
   border: 0;
-}
-:where(.css-48zcnw).ant-pagination .ant-pagination-item-active a {
-  color: white;
 }
 
 .movieItemContainerChild {

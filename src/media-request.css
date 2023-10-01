@@ -81,4 +81,10 @@
     margin-bottom: 7px;
     padding-right: 7px;
   }
+  
+  div.App > div.card-container > div > div::before {
+    left: 49.965%;
+    width: 30%;
+    transform: translateX(-49%);
+  }
 }
