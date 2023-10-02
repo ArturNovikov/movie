@@ -1,1 +1,1 @@
-https://main-movie-rleul79si-arturnovikov.vercel.app
+https://main-movie-4jten7pck-arturnovikov.vercel.app/
