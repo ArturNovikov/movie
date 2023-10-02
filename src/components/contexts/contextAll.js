@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 
 import MovieService from '../../services';
 
@@ -10,11 +10,12 @@ export const SessionContext = React.createContext({
   setGuestSessionId: () => {},
 });
 
-export class ContextProvider extends React.Component {
+export class ContextProvider extends Component {
   state = {
     ratings: {},
     genres: [],
     guestSessionId: null,
+    error: null,
   };
   fetchRatingsRecursive = (sessionId, page = 1, allRatings = []) => {
     return MovieService.getRatingsForSession(sessionId, page).then((data) => {
@@ -37,8 +38,8 @@ export class ContextProvider extends React.Component {
           });
           this.setState({ ratings: ratings, guestSessionId: savedGuestSessionId });
         })
-        .catch((error) => {
-          console.log('Error fetching ratings:', error);
+        .catch(() => {
+          this.setState({ error: 'Error fetching ratings. Please try again later.' });
         });
     } else {
       Promise.all([MovieService.getGenres(), MovieService.createGuestSession()])
@@ -50,8 +51,8 @@ export class ContextProvider extends React.Component {
           });
           localStorage.setItem('guestSessionId', guestSessionId);
         })
-        .catch((error) => {
-          console.log('Error', error);
+        .catch(() => {
+          this.setState({ error: 'Error fetching genres. Please try again later.' });
         });
     }
   }
@@ -75,13 +76,16 @@ export class ContextProvider extends React.Component {
           });
           this.setState({ ratings: ratings });
         })
-        .catch((error) => {
-          console.log('Error updating ratings:', error);
+        .catch(() => {
+          this.setState({ error: 'Error updating ratings. Please try again later.' });
         });
     }
   };
 
   render() {
+    if (this.state.error) {
+      return <div>{this.state.error}</div>;
+    }
     const { children } = this.props;
     return (
       <ContextAll.Provider
@@ -98,5 +102,3 @@ export class ContextProvider extends React.Component {
     );
   }
 }
-
-localStorage.clear();

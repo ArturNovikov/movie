@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Pagination, Tabs, Input, Spin, Alert, ConfigProvider } from 'antd';
 import debounce from 'lodash/debounce';
 
@@ -24,7 +24,7 @@ const configSettings = {
   },
 };
 
-export default class MovieBord extends Component {
+export default class MovieBord extends PureComponent {
   static contextType = ContextAll;
   constructor(props) {
     super(props);
@@ -59,8 +59,7 @@ export default class MovieBord extends Component {
           loading: false,
         });
       })
-      .catch((error) => {
-        console.error(error);
+      .catch(() => {
         this.setState({ error: 'On loading Error.' });
       })
       .finally(() => {
@@ -76,8 +75,8 @@ export default class MovieBord extends Component {
           ratedTotalResults: data.total_results,
         });
       })
-      .catch((err) => {
-        console.error('Error fetching rated movies:', err);
+      .catch(() => {
+        this.setState({ error: 'Error fetching rated movies. Please try again later.' });
       });
   };
 
@@ -130,8 +129,7 @@ export default class MovieBord extends Component {
           });
         }
       })
-      .catch((error) => {
-        console.log(error);
+      .catch(() => {
         this.setState({
           error: 'Error of loading movies for current Page.',
           loading: false,
@@ -151,6 +149,12 @@ export default class MovieBord extends Component {
             loading: false,
             totalPagesResults: data.total_results,
           });
+        } else if (this.state.currentQuery === '') {
+          this.setState({
+            loading: false,
+            totalPagesResults: 1,
+            movies: [],
+          });
         } else {
           this.setState({
             movies: [],
@@ -159,8 +163,7 @@ export default class MovieBord extends Component {
           });
         }
       })
-      .catch((error) => {
-        console.error(error);
+      .catch(() => {
         this.setState({
           error: 'Error on movie search.',
           loading: false,
